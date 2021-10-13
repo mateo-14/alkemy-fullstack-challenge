@@ -1,3 +1,4 @@
+require('dotenv').config();
 const supertest = require('supertest');
 const app = require('../src/app');
 const User = require('../src/models/User');
