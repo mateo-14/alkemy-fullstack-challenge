@@ -1,5 +1,6 @@
-const { Model, DataTypes, Transaction } = require('sequelize');
+const { Model, DataTypes, Sequelize } = require('sequelize');
 const bcrypt = require('bcrypt');
+const sequelize = require('../db');
 
 class User extends Model {
   verifyPassword(password) {
@@ -7,22 +8,25 @@ class User extends Model {
   }
 }
 
-User.init({
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: Sequelize.UUIDV4,
-    primaryKey: true,
+User.init(
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: Sequelize.UUIDV4,
+      primaryKey: true,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  username: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-});
+  { sequelize }
+);
 
 function hashPassword(user) {
   if (user.changed('password')) {
@@ -38,5 +42,7 @@ function hashPassword(user) {
 User.beforeCreate(hashPassword);
 User.beforeUpdate(hashPassword);
 
-User.hasMany(Transaction);
 module.exports = User;
+
+const Transaction = require('./Transaction');
+User.hasMany(Transaction);
