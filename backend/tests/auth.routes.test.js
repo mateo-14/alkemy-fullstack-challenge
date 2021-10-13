@@ -24,14 +24,34 @@ describe('POST /auth/register', () => {
     expect(res.body.token).toBeDefined();
   });
 
-  it('should responds 409 email already exists', async () => {
+  it('should responds 409 email is already used', async () => {
     const res = await api
       .post('/auth/register')
       .send(testUser)
       .expect(409)
       .expect('Content-Type', /application\/json/);
 
-    expect(res.body.errors.email).toBe('Email already exists');
+    expect(res.body.errors.email).toBe('Email is already used');
+  });
+
+  it('should responds 400 email is required', async () => {
+    const res = await api
+      .post('/auth/register')
+      .send({ password: '12jjas' })
+      .expect(400)
+      .expect('Content-Type', /application\/json/);
+
+    expect(res.body.errors.email).toBe('Email is required');
+  });
+
+  it('should responds 400 password is required', async () => {
+    const res = await api
+      .post('/auth/register')
+      .send({ email: 'email@example.com' })
+      .expect(400)
+      .expect('Content-Type', /application\/json/);
+
+    expect(res.body.errors.password).toBe('Password is required');
   });
 });
 
@@ -56,6 +76,16 @@ describe('POST /auth/login', () => {
       .expect('Content-Type', /application\/json/);
 
     expect(res.body.errors.email).toBe('Email is required');
+  });
+
+  it('should responds 400 password is required', async () => {
+    const res = await api
+      .post('/auth/login')
+      .send({ email: 'email@example.com' })
+      .expect(400)
+      .expect('Content-Type', /application\/json/);
+
+    expect(res.body.errors.password).toBe('Password is required');
   });
 
   it('should responds 401', async () => {
