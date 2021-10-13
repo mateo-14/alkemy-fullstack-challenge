@@ -11,7 +11,7 @@ Transaction.init(
       primaryKey: true,
     },
     desc: DataTypes.STRING,
-    data: DataTypes.DATE,
+    date: DataTypes.DATE,
     amount: DataTypes.NUMBER,
     type: DataTypes.SMALLINT,
   },
