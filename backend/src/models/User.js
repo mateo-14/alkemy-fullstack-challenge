@@ -1,4 +1,4 @@
-const { Model, DataTypes } = require('sequelize');
+const { Model, DataTypes, Transaction } = require('sequelize');
 const bcrypt = require('bcrypt');
 
 class User extends Model {
@@ -13,7 +13,7 @@ User.init({
     defaultValue: Sequelize.UUIDV4,
     primaryKey: true,
   },
-  username: {
+  email: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
@@ -38,4 +38,5 @@ function hashPassword(user) {
 User.beforeCreate(hashPassword);
 User.beforeUpdate(hashPassword);
 
+User.hasMany(Transaction);
 module.exports = User;
