@@ -14,8 +14,10 @@ module.exports = {
   register: async (req, res) => {
     const { email, password } = req.body;
 
-    if (!email) return res.status(400).json({ errors: { email: 'Email is required' } });
-    if (!password) return res.status(400).json({ errors: { password: 'Password is required' } });
+    const validatorErrors = {};
+    if (!email) validatorErrors.email = 'Email is required';
+    if (!password) validatorErrors.password = 'Password is required';
+    if (Object.keys(validatorErrors).length > 0) return res.status(400).json({ errors: validatorErrors });
 
     try {
       const [user, created] = await User.findOrCreate({
