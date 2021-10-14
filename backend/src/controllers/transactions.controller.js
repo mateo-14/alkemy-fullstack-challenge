@@ -94,6 +94,22 @@ module.exports = {
   },
 
   delete: async (req, res) => {
-    res.sendStatus(200);
+    const { id } = req.params;
+    try {
+      const user = await User.findOne({ where: { id: req.userID } });
+      if (!user) return res.sendStatus(401);
+
+      let transaction = await Transaction.findOne({ where: { id } });
+      if (!transaction) return res.sendStatus(404);
+
+      const isOwner = await user.hasTransaction(transaction);
+      if (!isOwner) return res.sendStatus(401);
+
+      await transaction.destroy();
+      res.sendStatus(200);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ errors: { error: err.message } });
+    }
   },
 };
