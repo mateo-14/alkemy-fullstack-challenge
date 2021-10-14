@@ -28,13 +28,13 @@ beforeAll(async () => {
   db.transactions = await Transaction.bulkCreate(transactions);
   db.categories = await Category.bulkCreate(categories);
 
-  token = generateToken(db.users[0]);
+  token = await generateToken(db.users[0].id);
 
   await db.transactions[0].addCategory(db.categories[0]);
-  await db.transactions[1].addCategory(db.categories[1]);
+  await db.transactions[1].addCategory(db.categories[2]);
   await db.transactions[2].addCategory(db.categories[3]);
   await db.transactions[3].addCategory(db.categories[1]);
-  await db.transactions[4].addCategory(db.categories[0]);
+  await db.transactions[4].addCategory(db.categories[2]);
 
   await db.users[0].setTransactions(db.transactions.slice(0, 3));
   await db.users[1].setTransactions(db.transactions.slice(3, 5));
@@ -42,15 +42,16 @@ beforeAll(async () => {
 
 describe('GET /transactions', () => {
   const compareTransactions = (dbTransactions, responseTransactions) => {
-    transactionsList.toHaveLength(dbUserTransactions.length);
+    expect(responseTransactions).toHaveLength(dbTransactions.length);
     expect(
       responseTransactions.every((transaction) =>
         dbTransactions.some(
           (dbTransaction) =>
+            transaction.id === dbTransaction.id &&
             transaction.desc === dbTransaction.desc &&
             transaction.amount === dbTransaction.amount &&
             transaction.type === dbTransaction.type &&
-            transaction.date === dbTransaction.date
+            new Date(transaction.date).getTime() === dbTransaction.date.getTime()
         )
       )
     ).toBeTruthy();
@@ -60,6 +61,7 @@ describe('GET /transactions', () => {
     const res = await api
       .get('/transactions')
       .set('Authorization', `Bearer ${token}`)
+      .expect(200)
       .expect('Content-Type', /application\/json/);
 
     const dbUserTransactions = await db.users[0].getTransactions();
@@ -71,6 +73,7 @@ describe('GET /transactions', () => {
     const res = await api
       .get(`/transactions?type=${type}`)
       .set('Authorization', `Bearer ${token}`)
+      .expect(200)
       .expect('Content-Type', /application\/json/);
 
     const dbUserTransactions = await db.users[0].getTransactions({ where: { type } });
@@ -82,14 +85,24 @@ describe('GET /transactions', () => {
     const res = await api
       .get(`/transactions?category=${category}`)
       .set('Authorization', `Bearer ${token}`)
+      .expect(200)
       .expect('Content-Type', /application\/json/);
 
-    const dbUserTransactions = await db.users[0].getTransactions({ where: { category } });
+    expect(res.body).toHaveLength(1);
+    const dbUserTransactions = await db.users[0].getTransactions({
+      include: [
+        {
+          model: Category,
+          where: { name: category },
+        },
+      ],
+    });
+
     compareTransactions(dbUserTransactions, res.body);
   });
 
   it('should responds 401', async () => {
-    await api.get('/transactions').toBe(401);
+    await api.get('/transactions').expect(401);
   });
 });
 

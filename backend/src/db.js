@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
 const db = process.env.NODE_ENV === 'test' ? ':memory:' : './db.sqlite';
 
-const sequelize = new Sequelize(`sqlite:${db}`);
+const sequelize = new Sequelize(`sqlite:${db}`, { logging: process.env.NODE_ENV !== 'test' });
 
 module.exports = sequelize;

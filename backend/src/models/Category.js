@@ -5,12 +5,12 @@ class Category extends Model {}
 
 Category.init(
   {
-    name: DataTypes.STRING,
+    name: { type: DataTypes.STRING, unique: true, primaryKey: true },
   },
-  { sequelize }
+  { sequelize, name: { singular: 'category', plural: 'categories' } }
 );
 
 module.exports = Category;
 
 const Transaction = require('./Transaction');
-Category.belongsToMany(Transaction, { through: 'TransactionsCategories' });
+Category.belongsToMany(Transaction, { through: 'transaction_category', foreignKey: 'categoryName' });
