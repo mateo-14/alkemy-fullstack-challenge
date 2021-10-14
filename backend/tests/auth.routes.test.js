@@ -1,14 +1,10 @@
-require('dotenv').config();
-const supertest = require('supertest');
-const app = require('../src/app');
+const { api } = require('./index');
 const User = require('../src/models/User');
 
-const api = supertest(app);
-const testUser = { email: 'test', password: '123456' };
+const testUser = { email: 'testRoutes@example.com', password: '123456' };
 
 beforeAll(async () => {
-  const user = await User.create(testUser);
-  console.log(user.toJSON());
+  await User.create(testUser);
 });
 
 describe('POST /auth/register', () => {
