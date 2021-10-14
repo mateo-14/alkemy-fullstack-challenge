@@ -160,20 +160,20 @@ describe('PUT /transactions/:id', () => {
     let transaction = db.transactions[1];
     const newData = { ...transaction, desc: 'Updated desc', amount: 1405, date: new Date('10/9/2021') };
     const res = await api
-      .put(`/transactions/${id}`)
+      .put(`/transactions/${transaction.id}`)
       .set('Authorization', `Bearer ${token}`)
       .send(newData)
       .expect(200)
       .expect('Content-Type', /application\/json/);
 
-    res.body.desc.toBe(newData.desc);
-    res.body.amount.toBe(newData.amount);
-    res.body.date.toBe(newData.date);
+    expect(res.body.desc).toBe(newData.desc);
+    expect(res.body.amount).toBe(newData.amount);
+    expect(new Date(res.body.date).getTime()).toBe(newData.date.getTime());
 
-    transaction = await Transaction.findOne({ where: { id } });
-    transaction.desc.toBe(newData.desc);
-    transaction.amount.toBe(newData.amount);
-    transaction.date.toBe(newData.date);
+    transaction = await Transaction.findOne({ where: { id: transaction.id } });
+    expect(transaction.desc).toBe(newData.desc);
+    expect(transaction.amount).toBe(newData.amount);
+    expect(transaction.date.getTime()).toBe(newData.date.getTime());
   });
 
   it('should responds 404', async () => {

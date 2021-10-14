@@ -33,6 +33,7 @@ module.exports = {
       res.status(500).send({ errors: { error: err.message } });
     }
   },
+
   create: async (req, res) => {
     const { desc, type, amount, date, categories } = req.body;
 
@@ -69,9 +70,29 @@ module.exports = {
       console.error(err);
     }
   },
+
   update: async (req, res) => {
-    res.sendStatus(200);
+    const { desc, date, amount } = req.body;
+    const { id } = req.params;
+
+    try {
+      const user = await User.findOne({ where: { id: req.userID } });
+      if (!user) return res.sendStatus(401);
+
+      let transaction = await Transaction.findOne({ where: { id } });
+      if (!transaction) return res.sendStatus(404);
+
+      const isOwner = await user.hasTransaction(transaction);
+      if (!isOwner) return res.sendStatus(401);
+
+      transaction = await transaction.update({ desc, date, amount });
+      res.json(transaction);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ errors: { error: err.message } });
+    }
   },
+
   delete: async (req, res) => {
     res.sendStatus(200);
   },
