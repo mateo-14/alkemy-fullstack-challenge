@@ -1,4 +1,5 @@
 const { generateToken } = require('../src/controllers/auth.controller');
+const sequelize = require('../src/db');
 const Category = require('../src/models/Category');
 const Transaction = require('../src/models/Transaction');
 const User = require('../src/models/User');
@@ -6,7 +7,7 @@ const { api } = require('./index');
 
 const users = [
   { email: 'testTransactions@example.com', password: '12345' },
-  { email: 'testTransactions@example.com', password: '12345' },
+  { email: 'testTransactions2@example.com', password: '12345' },
 ];
 
 const categories = [{ name: 'food' }, { name: 'services' }, { name: 'games' }];
@@ -22,6 +23,7 @@ const transactions = [
 let token;
 let db = {};
 beforeAll(async () => {
+  await sequelize.sync();
   db.users = await User.bulkCreate(users);
   db.transactions = await Transaction.bulkCreate(transactions);
   db.categories = await Category.bulkCreate(categories);
@@ -172,7 +174,7 @@ describe('PUT /transactions/:id', () => {
     res.body.amount.toBe(newData.amount);
     res.body.date.toBe(newData.date);
 
-    const transaction = await Transaction.findOne({ where: { id } });
+    transaction = await Transaction.findOne({ where: { id } });
     transaction.desc.toBe(newData.desc);
     transaction.amount.toBe(newData.amount);
     transaction.date.toBe(newData.date);

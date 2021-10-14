@@ -1,9 +1,11 @@
 const { api } = require('./index');
 const User = require('../src/models/User');
+const sequelize = require('../src/db');
 
 const testUser = { email: 'testRoutes@example.com', password: '123456' };
 
 beforeAll(async () => {
+  await sequelize.sync();
   await User.create(testUser);
 });
 
