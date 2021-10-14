@@ -109,6 +109,7 @@ describe('GET /transactions', () => {
 describe('POST /transactions', () => {
   it('should responds with 200', async () => {
     const newTransaction = {
+      categories: ['new category'],
       desc: 'New transaction description',
       amount: 20000,
       type: 1,
@@ -125,7 +126,7 @@ describe('POST /transactions', () => {
     expect(res.body.desc).toBe(newTransaction.desc);
     expect(res.body.amount).toBe(newTransaction.amount);
     expect(res.body.type).toBe(newTransaction.type);
-    expect(res.body.date).toBe(newTransaction.date);
+    expect(new Date(res.body.date).getTime()).toBe(newTransaction.date);
 
     const dbTransaction = await Transaction.findOne({ where: { id: res.body.id } });
     expect(dbTransaction).not.toBeNull();
@@ -133,38 +134,20 @@ describe('POST /transactions', () => {
     expect(dbTransaction.desc).toBe(newTransaction.desc);
     expect(dbTransaction.amount).toBe(newTransaction.amount);
     expect(dbTransaction.type).toBe(newTransaction.type);
-    expect(dbTransaction.date).toBe(newTransaction.date);
+    expect(new Date(dbTransaction.date).getTime()).toBe(newTransaction.date);
   });
 
-  it('should responds 400 description is required', async () => {
+  it('should responds 400', async () => {
     const res = await api
       .post('/transactions')
-      .send({ amount: 200, type: 0 })
-      .set('Authorization', `Bearer ${token}`)
-      .expect(400)
-      .expect('Content-Type', /application\/json/);
-
-    expect(res.body.errors.desc).toBeDefined();
-  });
-  it('should responds 400 amount is required', async () => {
-    const res = await api
-      .post('/transactions')
-      .send({ desc: 'random desc', type: 1 })
+      .send({})
       .set('Authorization', `Bearer ${token}`)
       .expect(400)
       .expect('Content-Type', /application\/json/);
 
     expect(res.body.errors.amount).toBeDefined();
-  });
-  it('should responds 400 type is required', async () => {
-    const res = await api
-      .post('/transactions')
-      .send({ desc: 'random desc', amount: 200 })
-      .set('Authorization', `Bearer ${token}`)
-      .expect(400)
-      .expect('Content-Type', /application\/json/);
-
     expect(res.body.errors.type).toBeDefined();
+    expect(res.body.errors.desc).toBeDefined();
   });
 
   it('should responds 401', async () => {
