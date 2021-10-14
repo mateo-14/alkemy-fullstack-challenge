@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 module.exports = function authMiddleware(req, res, next) {
   const authHeader = req.header('Authorization')?.split(' ');
   if (authHeader?.length > 1 && authHeader[0] === 'Bearer') {
