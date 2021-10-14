@@ -69,4 +69,5 @@ module.exports = {
       res.status(500).json({ errors: { error: err.message } });
     }
   },
+  generateToken,
 };
