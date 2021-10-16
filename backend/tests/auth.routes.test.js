@@ -10,7 +10,7 @@ beforeAll(async () => {
 });
 
 describe('POST /auth/register', () => {
-  it('should responds 200', async () => {
+  it('responds (200) with user', async () => {
     const newUser = { email: 'nico14', password: '123456' };
     const res = await api
       .post('/auth/register')
@@ -23,7 +23,7 @@ describe('POST /auth/register', () => {
     expect(res.body.token).toBeDefined();
   });
 
-  it('should responds 409 email is already used', async () => {
+  it('responds (409) with error: email is already used', async () => {
     const res = await api
       .post('/auth/register')
       .send(testUser)
@@ -33,7 +33,7 @@ describe('POST /auth/register', () => {
     expect(res.body.errors.email).toBe('Email is already used');
   });
 
-  it('should responds 400 email is required', async () => {
+  it('responds (400) with error: email is required', async () => {
     const res = await api
       .post('/auth/register')
       .send({ password: '12jjas' })
@@ -43,7 +43,7 @@ describe('POST /auth/register', () => {
     expect(res.body.errors.email).toBe('Email is required');
   });
 
-  it('should responds 400 password is required', async () => {
+  it('responds (400) with error: password is required', async () => {
     const res = await api
       .post('/auth/register')
       .send({ email: 'email@example.com' })
@@ -55,7 +55,7 @@ describe('POST /auth/register', () => {
 });
 
 describe('POST /auth/login', () => {
-  it('should responds 200', async () => {
+  it('responds (200) with token', async () => {
     const res = await api
       .post('/auth/login')
       .send(testUser)
@@ -67,7 +67,7 @@ describe('POST /auth/login', () => {
     expect(res.body.token).toBeDefined();
   });
 
-  it('should responds 400 email is required', async () => {
+  it('responds (400) with error: email is required', async () => {
     const res = await api
       .post('/auth/login')
       .send({ password: '12jjas' })
@@ -77,7 +77,7 @@ describe('POST /auth/login', () => {
     expect(res.body.errors.email).toBe('Email is required');
   });
 
-  it('should responds 400 password is required', async () => {
+  it('responds (400) with error: password is required', async () => {
     const res = await api
       .post('/auth/login')
       .send({ email: 'email@example.com' })
@@ -87,7 +87,7 @@ describe('POST /auth/login', () => {
     expect(res.body.errors.password).toBe('Password is required');
   });
 
-  it('should responds 401', async () => {
+  it('responds 401', async () => {
     await api.post('/auth/login').send({ email: testUser.email, password: 'k12431j' }).expect(401);
   });
 });

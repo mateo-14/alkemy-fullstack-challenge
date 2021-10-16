@@ -57,7 +57,7 @@ describe('GET /transactions', () => {
     ).toBeTruthy();
   };
 
-  it('should responds with user transactions list', async () => {
+  it('responds with user transactions list', async () => {
     const res = await api
       .get('/transactions')
       .set('Authorization', `Bearer ${token}`)
@@ -68,7 +68,7 @@ describe('GET /transactions', () => {
     compareTransactions(dbUserTransactions, res.body);
   });
 
-  it('should responds with user transaction list (Type filter)', async () => {
+  it('responds with user transaction list (Type filter)', async () => {
     const type = 1;
     const res = await api
       .get(`/transactions?type=${type}`)
@@ -80,7 +80,7 @@ describe('GET /transactions', () => {
     compareTransactions(dbUserTransactions, res.body);
   });
 
-  it('should responds with user transaction list (food category filter)', async () => {
+  it('responds with user transaction list (food category filter)', async () => {
     const category = 'food';
     const res = await api
       .get(`/transactions?category=${category}`)
@@ -101,13 +101,13 @@ describe('GET /transactions', () => {
     compareTransactions(dbUserTransactions, res.body);
   });
 
-  it('should responds 401', async () => {
+  it('responds 401', async () => {
     await api.get('/transactions').expect(401);
   });
 });
 
 describe('POST /transactions', () => {
-  it('should responds with 200', async () => {
+  it('responds 200 with new transaction', async () => {
     const newTransaction = {
       categories: ['new category'],
       desc: 'New transaction description',
@@ -137,7 +137,7 @@ describe('POST /transactions', () => {
     expect(new Date(dbTransaction.date).getTime()).toBe(newTransaction.date);
   });
 
-  it('should responds 400', async () => {
+  it('responds 400 with validator errors', async () => {
     const res = await api
       .post('/transactions')
       .send({})
@@ -150,13 +150,13 @@ describe('POST /transactions', () => {
     expect(res.body.errors.desc).toBeDefined();
   });
 
-  it('should responds 401', async () => {
+  it('responds 401', async () => {
     await api.post('/transactions').expect(401);
   });
 });
 
 describe('PUT /transactions/:id', () => {
-  it('should responds with 200', async () => {
+  it('responds 200 with updated transaction', async () => {
     let transaction = db.transactions[1];
     const newData = { ...transaction, desc: 'Updated desc', amount: 1405, date: new Date('10/9/2021') };
     const res = await api
@@ -176,22 +176,22 @@ describe('PUT /transactions/:id', () => {
     expect(transaction.date.getTime()).toBe(newData.date.getTime());
   });
 
-  it('should responds 404', async () => {
+  it('responds 404', async () => {
     await api.put(`/transactions/randomid`).set('Authorization', `Bearer ${token}`).expect(404);
   });
 
-  it('should responds 401', async () => {
+  it('responds 401', async () => {
     await api.put(`/transactions/${db.transactions[0].id}`).expect(401);
   });
 
-  it("should responds 401 (another user's transaction)", async () => {
+  it("responds 401 (another user's transaction)", async () => {
     const id = db.transactions[db.transactions.length - 1].id;
     await api.put(`/transactions/${id}`).set('Authorization', `Bearer ${token}`).expect(401);
   });
 });
 
 describe('DELETE /transactions/:id', () => {
-  it('should responds with 200', async () => {
+  it('responds 200', async () => {
     const id = db.transactions[2].id;
     await api.delete(`/transactions/${id}`).set('Authorization', `Bearer ${token}`).expect(200);
 
@@ -199,15 +199,15 @@ describe('DELETE /transactions/:id', () => {
     expect(transaction).toBeNull();
   });
 
-  it('should responds 404', async () => {
+  it('responds 404', async () => {
     await api.delete(`/transactions/randomid`).set('Authorization', `Bearer ${token}`).expect(404);
   });
 
-  it('should responds 401 ', async () => {
+  it('responds 401 ', async () => {
     await api.delete(`/transactions/${db.transactions[0].id}`).set('Authorization', 'Bearer randomtoken').expect(401);
   });
 
-  it("should responds 401 (another user's transaction)", async () => {
+  it("responds 401 (another user's transaction)", async () => {
     const id = db.transactions[db.transactions.length - 1].id;
     await api.delete(`/transactions/${id}`).set('Authorization', `Bearer ${token}`).expect(401);
   });
