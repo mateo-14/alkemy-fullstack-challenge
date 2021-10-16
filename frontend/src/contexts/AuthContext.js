@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
           push('/');
         })
         .catch((err) => {
-          if (err.response.status === 401) localStorage.removeItem('token');
+          if (err.response?.status === 401) localStorage.removeItem('token');
         })
         .finally(() => setIsReady(true));
     }
