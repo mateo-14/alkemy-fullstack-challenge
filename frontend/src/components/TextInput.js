@@ -1,5 +1,23 @@
-export default function TextInput({ label, id, name, type, value, onChange, placeholder, className }) {
-  return (
+import React from 'react';
+export default React.forwardRef(
+  (
+    {
+      label,
+      id,
+      name,
+      type,
+      value,
+      onChange,
+      placeholder,
+      className,
+      onBlur,
+      required,
+      maxLength,
+      minLength,
+      errorMessage,
+    },
+    ref
+  ) => (
     <div className={`md:flex md:items-center ${className || ''}`}>
       <div className="md:w-1/3">
         <label className="block text-gray-500 font-bold mb-1 md:mb-0" htmlFor={id}>
@@ -15,8 +33,14 @@ export default function TextInput({ label, id, name, type, value, onChange, plac
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          onBlur={onBlur}
+          required={required}
+          maxLength={maxLength}
+          minLength={minLength}
+          ref={ref}
         />
+        {errorMessage && <p className="font-medium text-red-500 text-sm mt-1">{errorMessage}</p>}
       </div>
     </div>
-  );
-}
+  )
+);
