@@ -6,8 +6,8 @@ const User = require('../src/models/User');
 const { api } = require('./index');
 
 const users = [
-  { email: 'testTransactions@example.com', password: '12345' },
-  { email: 'testTransactions2@example.com', password: '12345' },
+  { email: 'testTransactions@example.com', password: '12345', name: 'Name' },
+  { email: 'testTransactions2@example.com', password: '12345', name: 'Name' },
 ];
 
 const categories = [{ name: 'food' }, { name: 'services' }, { name: 'games' }];

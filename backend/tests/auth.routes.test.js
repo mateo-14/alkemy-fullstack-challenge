@@ -3,22 +3,23 @@ const User = require('../src/models/User');
 const sequelize = require('../src/db');
 const { generateToken } = require('../src/controllers/auth.controller');
 
-const testUser = { email: 'testRoutes@example.com', password: '123456' };
+const testUser = { name: 'Name', email: 'testRoutes@example.com', password: '123456' };
 
 beforeAll(async () => {
   await sequelize.sync();
-  testUser.id = await User.create(testUser);
+  testUser.id = (await User.create(testUser)).id;
 });
 
 describe('POST /auth/register', () => {
   it('responds (200) with user', async () => {
-    const newUser = { email: 'nico14', password: '123456' };
+    const newUser = { name: 'Name', email: 'nico14', password: '123456' };
     const res = await api
       .post('/auth/register')
       .send(newUser)
       .expect(200)
       .expect('Content-Type', /application\/json/);
 
+    expect(res.body.name).toBe(newUser.name);
     expect(res.body.email).toBe(newUser.email);
     expect(res.body.id).toBeDefined();
     expect(res.body.token).toBeDefined();
@@ -63,6 +64,7 @@ describe('POST /auth/login', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/);
 
+    expect(res.body.name).toBe(testUser.name);
     expect(res.body.email).toBe(testUser.email);
     expect(res.body.id).toBeDefined();
     expect(res.body.token).toBeDefined();
@@ -98,6 +100,9 @@ describe('GET /auth', () => {
     const token = await generateToken(testUser.id);
     const res = await api.get('/auth').set('Authorization', `Bearer ${token}`).expect(200);
     expect(res.body.token).toBeDefined();
+    expect(res.body.name).toBeDefined();
+    expect(res.body.id).toBeDefined();
+    expect(res.body.email).toBeDefined();
   });
 
   it('responds 401', async () => {

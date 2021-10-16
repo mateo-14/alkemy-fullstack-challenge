@@ -12,7 +12,7 @@ async function generateToken(userID) {
 
 module.exports = {
   register: async (req, res) => {
-    const { email, password } = req.body;
+    const { email, name, password } = req.body;
 
     const validatorErrors = {};
     if (!email) validatorErrors.email = 'Email is required';
@@ -25,6 +25,7 @@ module.exports = {
         defaults: {
           email,
           password,
+          name,
         },
       });
 
@@ -33,6 +34,7 @@ module.exports = {
         res.json({
           id: user.id,
           email: user.email,
+          name: user.name,
           token,
         });
       } else {
@@ -59,6 +61,7 @@ module.exports = {
           return res.json({
             id: user.id,
             email: user.email,
+            name: user.name,
             token,
           });
         }
@@ -75,7 +78,11 @@ module.exports = {
   get: async (req, res) => {
     try {
       const token = await generateToken(req.userID);
-      res.json({ token });
+      const user = await User.findOne({ where: { id: req.userID } });
+      if (user) {
+        return res.json({ id: user.id, email: user.email, name: user.name, token });
+      }
+      res.sendStatus(401);
     } catch (err) {
       console.error(err);
       res.status(500).json({ errors: { error: err.message } });
