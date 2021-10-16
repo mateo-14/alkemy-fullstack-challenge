@@ -1,12 +1,13 @@
 const { api } = require('./index');
 const User = require('../src/models/User');
 const sequelize = require('../src/db');
+const { generateToken } = require('../src/controllers/auth.controller');
 
 const testUser = { email: 'testRoutes@example.com', password: '123456' };
 
 beforeAll(async () => {
   await sequelize.sync();
-  await User.create(testUser);
+  testUser.id = await User.create(testUser);
 });
 
 describe('POST /auth/register', () => {
@@ -94,6 +95,7 @@ describe('POST /auth/login', () => {
 
 describe('GET /auth', () => {
   it('responds (200) with a new token', async () => {
+    const token = await generateToken(testUser.id);
     const res = await api.get('/auth').set('Authorization', `Bearer ${token}`).expect(200);
     expect(res.body.token).toBeDefined();
   });

@@ -71,5 +71,15 @@ module.exports = {
       res.status(500).json({ errors: { error: err.message } });
     }
   },
+
+  get: async (req, res) => {
+    try {
+      const token = await generateToken(req.userID);
+      res.json({ token });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ errors: { error: err.message } });
+    }
+  },
   generateToken,
 };
