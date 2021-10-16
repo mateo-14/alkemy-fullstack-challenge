@@ -91,3 +91,14 @@ describe('POST /auth/login', () => {
     await api.post('/auth/login').send({ email: testUser.email, password: 'k12431j' }).expect(401);
   });
 });
+
+describe('GET /auth', () => {
+  it('responds (200) with a new token', async () => {
+    const res = await api.get('/auth').set('Authorization', `Bearer ${token}`).expect(200);
+    expect(res.body.token).toBeDefined();
+  });
+
+  it('responds 401', async () => {
+    await api.get('/auth').expect(401);
+  });
+});
