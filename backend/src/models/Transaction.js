@@ -13,7 +13,7 @@ Transaction.init(
     desc: DataTypes.STRING,
     date: DataTypes.DATE,
     amount: DataTypes.NUMBER,
-    type: DataTypes.SMALLINT,
+    type: DataTypes.SMALLINT, //0 = income, 1 = expense
   },
   { sequelize, name: { singular: 'transaction', plural: 'transactions' } }
 );

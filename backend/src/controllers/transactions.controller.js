@@ -12,17 +12,20 @@ module.exports = {
         if (type == 0 || type == 1) {
           where.type = type;
         }
-        const include = [];
-        if (category) {
-          include.push({
+
+        const include = [
+          //Include category list
+          {
             model: Category,
-            where: { name: category },
             through: {
               attributes: [],
             },
             attributes: ['name'],
-          });
-        }
+          },
+        ];
+
+        if (category) include[0].where = { name: category };
+
         const transactions = await user.getTransactions({ where, include });
         res.json(transactions);
       } else {
@@ -107,6 +110,33 @@ module.exports = {
 
       await transaction.destroy();
       res.sendStatus(200);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ errors: { error: err.message } });
+    }
+  },
+
+  getBalance: async (req, res) => {
+    try {
+      const user = await User.findOne({ where: { id: req.userID } });
+      if (!user) return res.sendStatus(401);
+
+      const transactions = await user.getTransactions(
+        { order: [['date', 'DESC']] },
+        {
+          model: Category,
+          through: {
+            attributes: [],
+          },
+          attributes: ['name'],
+        }
+      );
+
+      const balance = transactions.reduce(
+        (acc, transaction) => acc + transaction.amount * (transaction.type === 0 ? 1 : -1),
+        0
+      );
+      res.json({ balance, transactions: transactions.slice(0, 10) });
     } catch (err) {
       console.error(err);
       res.status(500).json({ errors: { error: err.message } });

@@ -22,6 +22,7 @@ const transactions = [
 
 let token;
 let db = {};
+
 beforeAll(async () => {
   await sequelize.sync();
   db.users = await User.bulkCreate(users);
@@ -58,14 +59,18 @@ describe('GET /transactions', () => {
   };
 
   it('responds with user transactions list', async () => {
-    const res = await api
-      .get('/transactions')
-      .set('Authorization', `Bearer ${token}`)
-      .expect(200)
-      .expect('Content-Type', /application\/json/);
+    try {
+      const res = await api
+        .get('/transactions')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
 
-    const dbUserTransactions = await db.users[0].getTransactions();
-    compareTransactions(dbUserTransactions, res.body);
+      const dbUserTransactions = await db.users[0].getTransactions();
+      compareTransactions(dbUserTransactions, res.body);
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   it('responds with user transaction list (Type filter)', async () => {
@@ -210,5 +215,27 @@ describe('DELETE /transactions/:id', () => {
   it("responds 401 (another user's transaction)", async () => {
     const id = db.transactions[db.transactions.length - 1].id;
     await api.delete(`/transactions/${id}`).set('Authorization', `Bearer ${token}`).expect(401);
+  });
+});
+
+describe('GET /transactions/balance', () => {
+  it('responds 200 with balance and latest transactions', async () => {
+    const res = await api
+      .get('/transactions/balance')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/);
+
+    const userTransactions = await db.users[0].getTransactions();
+    const balance = userTransactions.reduce(
+      (acc, transaction) => acc + transaction.amount * (transaction.type === 0 ? 1 : -1),
+      0
+    );
+    expect(res.body.transactions).toHaveLength(userTransactions.length);
+    expect(res.body.balance).toBe(balance);
+  });
+
+  it('responds 401 ', async () => {
+    await api.delete('/transactions/balance').set('Authorization', 'Bearer randomtoken').expect(401);
   });
 });

@@ -7,5 +7,6 @@ router.get('/', authMiddleware, transactionsController.getAll);
 router.post('/', authMiddleware, transactionsController.create);
 router.put('/:id', authMiddleware, transactionsController.update);
 router.delete('/:id', authMiddleware, transactionsController.delete);
+router.get('/balance', authMiddleware, transactionsController.getBalance);
 
 module.exports = router;
