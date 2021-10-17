@@ -4,7 +4,7 @@ const User = require('../models/User');
 
 module.exports = {
   getAll: async (req, res) => {
-    const { type, category } = req.query;
+    const { type, category, offset } = req.query;
     try {
       const user = await User.findOne({ where: { id: req.userID } });
       if (user) {
@@ -26,7 +26,13 @@ module.exports = {
 
         if (category) include[0].where = { name: category };
 
-        const transactions = await user.getTransactions({ where, include });
+        const transactions = await user.getTransactions({
+          where,
+          include,
+          order: [['date', 'DESC']],
+          limit: 10,
+          offset: offset || 0,
+        });
         res.json(transactions);
       } else {
         res.sendStatus(404);
@@ -121,16 +127,18 @@ module.exports = {
       const user = await User.findOne({ where: { id: req.userID } });
       if (!user) return res.sendStatus(401);
 
-      const transactions = await user.getTransactions(
-        { order: [['date', 'DESC']] },
-        {
-          model: Category,
-          through: {
-            attributes: [],
+      const transactions = await user.getTransactions({
+        order: [['date', 'DESC']],
+        include: [
+          {
+            model: Category,
+            through: {
+              attributes: [],
+            },
+            attributes: ['name'],
           },
-          attributes: ['name'],
-        }
-      );
+        ],
+      });
 
       const balance = transactions.reduce(
         (acc, transaction) => acc + transaction.amount * (transaction.type === 0 ? 1 : -1),
