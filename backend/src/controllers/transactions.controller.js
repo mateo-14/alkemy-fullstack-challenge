@@ -1,6 +1,7 @@
 const Category = require('../models/Category');
 const Transaction = require('../models/Transaction');
 const User = require('../models/User');
+const sequelize = require('../db');
 
 module.exports = {
   get: async (req, res) => {
@@ -67,12 +68,10 @@ module.exports = {
       await user.addTransaction(transaction);
 
       if (categories instanceof Array && categories.length > 0) {
-        let dbCategories = await Promise.all(
-          categories.map((category) => Category.findOrCreate({ where: { name: category } }))
-        );
+        let dbCategories = await Promise.all(categories.map((name) => Category.findOrCreate({ where: { name } })));
         dbCategories = dbCategories.map(([category]) => category);
         await transaction.addCategories(dbCategories);
-        return res.json({ ...transaction.toJSON(), categories: dbCategories.map((category) => category.toJSON()) });
+        return res.json({ ...transaction.toJSON(), categories: dbCategories.map((category) => category.name) });
       }
       res.json(transaction);
     } catch (err) {
@@ -82,7 +81,7 @@ module.exports = {
   },
 
   update: async (req, res) => {
-    const { desc, date, amount } = req.body;
+    const { desc, date, amount, categories } = req.body;
     const { id } = req.params;
 
     try {
@@ -96,7 +95,21 @@ module.exports = {
       if (!isOwner) return res.sendStatus(401);
 
       transaction = await transaction.update({ desc, date, amount });
-      res.json(transaction);
+
+      //Update categories
+      const dbCategories = await transaction.getCategories();
+      const categoriesToRemove = dbCategories.filter((category) => !categories.includes(category.name));
+      await transaction.removeCategories(categoriesToRemove);
+
+      const categoriesToAdd = categories.filter((name) => !dbCategories.some((category) => category.name === name));
+      const newCategories = await sequelize.transaction((t) =>
+        Promise.all(categoriesToAdd.map((name) => Category.findOrCreate({ where: { name }, transaction: t })))
+      );
+
+      await transaction.addCategories(newCategories.map(([category]) => category));
+      const updatedCategories = await transaction.getCategories();
+
+      res.json({ ...transaction.toJSON(), categories: updatedCategories.map((category) => category.name) });
     } catch (err) {
       console.error(err);
       res.status(500).json({ errors: { error: err.message } });
@@ -153,7 +166,14 @@ module.exports = {
             .reduce((acc, categories) => acc.concat(categories), [])
         ),
       ];
-      res.json({ balance, transactions: transactions.slice(0, 10), categories });
+      res.json({
+        balance,
+        transactions: transactions.slice(0, 10).map((transaction) => ({
+          ...transaction.toJSON(),
+          categories: transaction.categories.map((category) => category.name),
+        })),
+        categories,
+      });
     } catch (err) {
       console.error(err);
       res.status(500).json({ errors: { error: err.message } });

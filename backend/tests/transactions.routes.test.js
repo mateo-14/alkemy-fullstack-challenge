@@ -163,7 +163,13 @@ describe('POST /transactions', () => {
 describe('PUT /transactions/:id', () => {
   it('responds 200 with updated transaction', async () => {
     let transaction = db.transactions[1];
-    const newData = { ...transaction, desc: 'Updated desc', amount: 1405, date: new Date('10/9/2021') };
+    const newData = {
+      ...transaction,
+      desc: 'Updated desc',
+      amount: 1405,
+      date: new Date('10/9/2021'),
+      categories: ['new category', 'new category 1'],
+    };
     const res = await api
       .put(`/transactions/${transaction.id}`)
       .set('Authorization', `Bearer ${token}`)
@@ -176,9 +182,12 @@ describe('PUT /transactions/:id', () => {
     expect(new Date(res.body.date).getTime()).toBe(newData.date.getTime());
 
     transaction = await Transaction.findOne({ where: { id: transaction.id } });
+    const categories = (await transaction.getCategories()).map((category) => category.name);
+
     expect(transaction.desc).toBe(newData.desc);
     expect(transaction.amount).toBe(newData.amount);
     expect(transaction.date.getTime()).toBe(newData.date.getTime());
+    expect(categories).toHaveLength(newData.categories.length);
   });
 
   it('responds 404', async () => {
