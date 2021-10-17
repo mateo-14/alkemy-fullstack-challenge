@@ -21,6 +21,4 @@ Transaction.init(
 module.exports = Transaction;
 
 const Category = require('./Category');
-const User = require('./User');
-Transaction.belongsTo(User, { foreignKey: 'userID' });
-Transaction.belongsToMany(Category, { through: 'transaction_category', foreignKey: 'categoryID' });
+Transaction.belongsToMany(Category, { through: 'transaction_category', foreignKey: 'transactionID' });

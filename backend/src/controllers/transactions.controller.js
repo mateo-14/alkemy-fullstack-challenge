@@ -3,7 +3,7 @@ const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 
 module.exports = {
-  getAll: async (req, res) => {
+  get: async (req, res) => {
     const { type, category, offset } = req.query;
     try {
       const user = await User.findOne({ where: { id: req.userID } });
@@ -56,7 +56,7 @@ module.exports = {
       desc,
       amount,
       type: Math.min(type, 1),
-      date: new Date(date) || Date.now(),
+      date: date ? new Date(date) : Date.now(),
     };
 
     try {
@@ -72,11 +72,12 @@ module.exports = {
         );
         dbCategories = dbCategories.map(([category]) => category);
         await transaction.addCategories(dbCategories);
-        transaction.categories = dbCategories;
+        return res.json({ ...transaction.toJSON(), categories: dbCategories.map((category) => category.toJSON()) });
       }
       res.json(transaction);
     } catch (err) {
       console.error(err);
+      res.status(500).json({ errors: { error: err.message } });
     }
   },
 
@@ -144,7 +145,15 @@ module.exports = {
         (acc, transaction) => acc + transaction.amount * (transaction.type === 0 ? 1 : -1),
         0
       );
-      res.json({ balance, transactions: transactions.slice(0, 10) });
+
+      const categories = [
+        ...new Set(
+          transactions
+            .map((transaction) => transaction.categories.map((category) => category.name))
+            .reduce((acc, categories) => acc.concat(categories), [])
+        ),
+      ];
+      res.json({ balance, transactions: transactions.slice(0, 10), categories });
     } catch (err) {
       console.error(err);
       res.status(500).json({ errors: { error: err.message } });

@@ -48,4 +48,4 @@ User.beforeUpdate(hashPassword);
 module.exports = User;
 
 const Transaction = require('./Transaction');
-User.hasMany(Transaction, { foreignKey: 'transactionID' });
+User.hasMany(Transaction, { foreignKey: 'userID' });
