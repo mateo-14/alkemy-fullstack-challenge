@@ -60,8 +60,11 @@ export default function TransactionList({ list, onListChange }) {
                   </span>
                 ))}
               </td>
-              <td className="px-2">
-                <button className="text-indigo-500 hover:text-indigo-600" onClick={() => handleEdit(transaction)}>
+              <td className="px-2 text-right">
+                <button
+                  className="text-indigo-500 hover:text-indigo-600 mr-auto"
+                  onClick={() => handleEdit(transaction)}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"

@@ -20,6 +20,13 @@ export function AuthProvider({ children }) {
 
   const login = (data) => auth(data, 'login');
   const register = (data) => auth(data, 'register');
+  const logout = () => {
+    if (isReady && user) {
+      setUser(null);
+      localStorage.removeItem('token');
+      push('/login');
+    }
+  };
 
   useEffect(() => {
     if (!isReady) {
@@ -40,7 +47,7 @@ export function AuthProvider({ children }) {
   }, [isReady]);
 
   return (
-    <AuthContext.Provider value={{ isReady, login, register, user }}>
+    <AuthContext.Provider value={{ isReady, login, register, user, logout }}>
       {!isReady ? (
         <div className="min-h-screen flex justify-center items-center">
           <svg
