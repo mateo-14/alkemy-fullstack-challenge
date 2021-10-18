@@ -72,10 +72,10 @@ export default function TransactionModal({ mode = 'creating', transaction, show,
           {mode === 'creating' ? (
             <FieldWrapper label="Tipo">
               <input {...register('type')} type="radio" value="0" id="income" />
-              <label for="income"> Ingreso</label>
+              <label htmlFor="income"> Ingreso</label>
 
               <input {...register('type')} type="radio" value="1" className="ml-2" id="expense" />
-              <label for="expense"> Egreso</label>
+              <label htmlFor="expense"> Egreso</label>
             </FieldWrapper>
           ) : null}
 
@@ -106,12 +106,7 @@ export default function TransactionModal({ mode = 'creating', transaction, show,
           </FieldWrapper>
 
           <div className="flex justify-between mt-10 gap-x-10">
-            <Button
-              className="flex-1"
-              color="bg-green-500"
-              type="submit"
-              disabled={isSubmitting || !isValid || !isDirty}
-            >
+            <Button className="flex-1" color="bg-green-500" disabled={isSubmitting || !isValid || !isDirty}>
               {mode === 'creating' ? 'Crear' : 'Guardar'}
             </Button>
             <Button
@@ -119,6 +114,7 @@ export default function TransactionModal({ mode = 'creating', transaction, show,
               color="bg-red-500"
               onClick={() => typeof onClose === 'function' && onClose()}
               disabled={isSubmitting}
+              type="button"
             >
               Cancelar
             </Button>
