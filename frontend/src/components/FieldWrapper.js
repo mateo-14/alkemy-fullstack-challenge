@@ -7,10 +7,8 @@ export function FieldWrapper({ label, children, className, errorMessage, htmlFor
         </label>
       </div>
       <div className="md:w-2/3">
-        <>
-          {children}
-          {errorMessage && <p className="font-medium text-red-500 text-sm mt-1">{errorMessage}</p>}
-        </>
+        {children}
+        {errorMessage && <p className="font-medium text-red-500 text-sm mt-1">{errorMessage}</p>}
       </div>
     </div>
   );
