@@ -1,42 +1,26 @@
-import axios from 'axios';
 import Head from 'next/head';
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import Button from '../components/Button';
 import TransactionList from '../components/TransactionList';
 import TransactionModal from '../components/TransactionModal';
 import AuthGuard from '../guards/AuthGuard';
 import useAuth from '../hooks/useAuth';
 import Link from 'next/link';
+import useBalance from '../hooks/useBalance';
 
 export default function Home() {
-  const { user, isReady } = useAuth();
-  const [balanceData, setBalanceData] = useState();
+  const { user } = useAuth();
   const [isModalShowing, setIsModalShowing] = useState(false);
-
-  const fetchBalance = useCallback(() => {
-    setBalanceData(null);
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/transactions/balance`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      })
-      .then(({ data }) => {
-        setBalanceData(data);
-      })
-      .catch(() => {});
-  }, [user?.token, setBalanceData]);
-
-  useEffect(() => {
-    if (isReady && user) fetchBalance();
-  }, [isReady, user]);
+  const { update: updateBalance, data: balanceData } = useBalance();
 
   const handleListChange = () => {
-    fetchBalance();
+    updateBalance();
   };
 
   const handleModalClose = (newTransaction) => {
     setIsModalShowing(false);
     if (newTransaction) {
-      fetchBalance();
+      updateBalance();
     }
   };
 
