@@ -31,7 +31,6 @@ export function AuthProvider({ children }) {
         .then(({ data }) => {
           localStorage.setItem('token', data.token);
           setUser(data);
-          push('/');
         })
         .catch((err) => {
           if (err.response?.status === 401) localStorage.removeItem('token');
