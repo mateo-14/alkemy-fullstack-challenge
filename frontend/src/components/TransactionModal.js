@@ -1,17 +1,63 @@
-import { useState } from 'react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import useAuth from '../hooks/useAuth';
 import Button from './Button';
 import CategoryEditor from './CategoryEditor';
 import TextInput from './TextInput';
 
+const api = process.env.NEXT_PUBLIC_API_URL;
 export default function TransactionModal({ mode = 'creating', transaction, show, onClose }) {
-  const [categories, setCategories] = useState(mode === 'editing' && transaction ? transaction.categories : []);
+  const {
+    user: { token },
+  } = useAuth();
 
-  const handleAddCategory = (category) => {
-    setCategories([...categories, category]);
-  };
+  const {
+    handleSubmit,
+    register,
+    control,
+    reset,
+    formState: { isSubmitting, isValid, isDirty },
+  } = useForm({ mode: 'onChange' });
 
-  const handleDeleteCategory = (category) => {
-    setCategories(categories.filter((_category) => _category !== category));
+  useEffect(() => {
+    if (transaction) {
+      reset({
+        desc: transaction.desc,
+        amount: transaction.amount,
+        date: new Date(transaction.date).toISOString().split('T')[0],
+        categories: transaction.categories,
+      });
+    } else {
+      reset({
+        desc: '',
+        amount: 1,
+        date: new Date().toISOString().split('T')[0],
+        categories: [],
+      });
+    }
+  }, [show, transaction]);
+
+  const onSubmit = async (data) => {
+    if (!token) return;
+    const headers = { Authorization: `Bearer ${token}` };
+    try {
+      if (mode === 'editing' && transaction) {
+        await axios.put(
+          `${api}/transactions/${transaction.id}`,
+          {
+            ...transaction,
+            ...data,
+          },
+          { headers }
+        );
+      } else if (mode === 'creating') {
+        await axios.post(`${api}/transactions`, { ...data }, { headers });
+      }
+      onClose(mode === 'editing' ? { ...data, id: transaction.id } : null);
+    } catch {
+      onClose();
+    }
   };
 
   return show ? (
@@ -19,15 +65,16 @@ export default function TransactionModal({ mode = 'creating', transaction, show,
       <div className="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
       <article className="bg-white w-full max-w-md mx-auto my-auto z-20 rounded px-10 py-5">
         <h1 className="font-medium text-2xl text-indigo-600">{mode === 'creating' ? 'Nueva operación' : 'Editar'}</h1>
-        <form className="py-5">
-          <TextInput label="Concepto" value={transaction?.desc || ''} />
-          <TextInput label="Monto" type="number" className="my-4" value={transaction?.amount || ''} />
+        <form className="py-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+          <TextInput label="Concepto" {...register('desc', { required: true })} />
           <TextInput
-            label="Fecha"
-            type="date"
+            label="Monto"
+            type="number"
             className="my-4"
-            value={transaction ? new Date(transaction.date).toISOString().split('T')[0] : ''}
+            min={1}
+            {...register('amount', { required: true, min: 1 })}
           />
+          <TextInput label="Fecha" type="date" className="my-4" {...register('date', { required: true })} />
 
           <div className={`md:flex md:items-center`}>
             <div className="md:w-1/3">
@@ -36,15 +83,35 @@ export default function TransactionModal({ mode = 'creating', transaction, show,
               </label>
             </div>
             <div className="md:w-2/3">
-              <CategoryEditor categories={categories} onAdd={handleAddCategory} onDelete={handleDeleteCategory} />
+              <Controller
+                name="categories"
+                control={control}
+                render={({ field: { value, onChange } }) => (
+                  <CategoryEditor
+                    value={value}
+                    onAdd={(category) => onChange([...value, category])}
+                    onDelete={(category) => onChange(value.filter((_category) => _category !== category))}
+                  />
+                )}
+              />
             </div>
           </div>
 
           <div className="flex justify-between mt-10 gap-x-10">
-            <Button className="flex-1" color="bg-green-500">
+            <Button
+              className="flex-1"
+              color="bg-green-500"
+              type="submit"
+              disabled={isSubmitting || !isValid || !isDirty}
+            >
               {mode === 'creating' ? 'Crear' : 'Guardar'}
             </Button>
-            <Button className="flex-1" color="bg-red-500" onClick={() => typeof onClose === 'function' && onClose()}>
+            <Button
+              className="flex-1"
+              color="bg-red-500"
+              onClick={() => typeof onClose === 'function' && onClose()}
+              disabled={isSubmitting}
+            >
               Cancelar
             </Button>
           </div>
