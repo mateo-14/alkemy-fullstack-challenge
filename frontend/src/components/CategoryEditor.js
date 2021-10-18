@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 
-export default function CategoryEditor({ categories, onAdd, onDelete }) {
+export default function CategoryEditor({ value, onAdd, onDelete }) {
   const inputRef = useRef();
 
   const handleClick = (e) => {
@@ -12,10 +12,10 @@ export default function CategoryEditor({ categories, onAdd, onDelete }) {
   const handleKeyDown = (e) => {
     if (e.keyCode === 13) {
       e.preventDefault();
-      const value = e.currentTarget.value.trim();
-      if (value && !categories.includes(value)) {
+      const category = e.currentTarget.value.trim();
+      if (category && !value.includes(category)) {
         e.currentTarget.value = '';
-        if (typeof onAdd === 'function') onAdd(value);
+        if (typeof onAdd === 'function') onAdd(category);
       }
     }
   };
@@ -24,7 +24,7 @@ export default function CategoryEditor({ categories, onAdd, onDelete }) {
       className="py-2 px-3 rounded-md border-2 border-gray-300 focus:border-indigo-50 cursor-text"
       onClick={handleClick}
     >
-      {categories?.map((category) => (
+      {value?.map((category) => (
         <span
           className="text-xs font-bold text-indigo-100 bg-indigo-600 rounded-full inline-flex items-center px-2 mr-2 my-1"
           key={category}

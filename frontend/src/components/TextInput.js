@@ -7,6 +7,7 @@ export default React.forwardRef(
       name,
       type,
       value,
+      defaultValue,
       onChange,
       placeholder,
       className,
@@ -15,6 +16,8 @@ export default React.forwardRef(
       maxLength,
       minLength,
       errorMessage,
+      max,
+      min,
     },
     ref
   ) => (
@@ -38,6 +41,9 @@ export default React.forwardRef(
           maxLength={maxLength}
           minLength={minLength}
           ref={ref}
+          defaultValue={defaultValue}
+          max={max}
+          min={min}
         />
         {errorMessage && <p className="font-medium text-red-500 text-sm mt-1">{errorMessage}</p>}
       </div>
