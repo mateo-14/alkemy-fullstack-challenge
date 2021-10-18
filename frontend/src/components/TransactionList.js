@@ -44,7 +44,7 @@ export default function TransactionList({ list, onListChange }) {
           </tr>
         </thead>
         <tbody>
-          {list.map((transaction) => (
+          {list?.map((transaction) => (
             <tr className="h-20 border-gray-300 border-b font-medium" key={transaction.id}>
               <td>{transaction.type === 0 ? 'Ingreso' : 'Egreso'}</td>
               <td className="text-indigo-600 px-2">${transaction.amount}</td>

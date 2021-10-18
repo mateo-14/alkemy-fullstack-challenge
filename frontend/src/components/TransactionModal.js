@@ -34,6 +34,7 @@ export default function TransactionModal({ mode = 'creating', transaction, show,
         amount: 1,
         date: new Date().toISOString().split('T')[0],
         categories: [],
+        type: '0',
       });
     }
   }, [show, transaction]);
@@ -51,10 +52,11 @@ export default function TransactionModal({ mode = 'creating', transaction, show,
           },
           { headers }
         );
+        onClose({ ...data, id: transaction.id });
       } else if (mode === 'creating') {
-        await axios.post(`${api}/transactions`, { ...data }, { headers });
+        const res = await axios.post(`${api}/transactions`, { ...data }, { headers });
+        onClose(res.data);
       }
-      onClose(mode === 'editing' ? { ...data, id: transaction.id } : null);
     } catch {
       onClose();
     }
@@ -66,7 +68,25 @@ export default function TransactionModal({ mode = 'creating', transaction, show,
       <article className="bg-white w-full max-w-md mx-auto my-auto z-20 rounded px-10 py-5">
         <h1 className="font-medium text-2xl text-indigo-600">{mode === 'creating' ? 'Nueva operación' : 'Editar'}</h1>
         <form className="py-5" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <TextInput label="Concepto" {...register('desc', { required: true })} />
+          {mode === 'creating' ? (
+            <div className={`md:flex md:items-center`}>
+              <div className="md:w-1/3">
+                <label className="block text-gray-500 font-bold mb-1 md:mb-0" htmlFor="category-input">
+                  Tipo
+                </label>
+              </div>
+              <div className="md:w-2/3">
+                <input {...register('type')} type="radio" value="0" id="income" />
+                <label for="income"> Ingreso</label>
+
+                <input {...register('type')} type="radio" value="1" className="ml-2" id="expense" />
+                <label for="expense"> Egreso</label>
+              </div>
+            </div>
+          ) : null}
+
+          <TextInput label="Concepto" {...register('desc', { required: true })} className="my-4" />
+
           <TextInput
             label="Monto"
             type="number"
