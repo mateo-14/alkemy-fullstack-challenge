@@ -88,7 +88,7 @@ describe('GET /transactions', () => {
   it('responds with user transaction list (food category filter)', async () => {
     const category = 'food';
     const res = await api
-      .get(`/transactions?category=${category}`)
+      .get(`/transactions?categories[]=${category}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/);

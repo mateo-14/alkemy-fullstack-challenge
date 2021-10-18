@@ -6,7 +6,6 @@ const sequelize = require('../db');
 module.exports = {
   get: async (req, res) => {
     const { type, categories, offset } = req.query;
-    console.log(categories);
     try {
       const user = await User.findOne({ where: { id: req.userID } });
       if (user) {
