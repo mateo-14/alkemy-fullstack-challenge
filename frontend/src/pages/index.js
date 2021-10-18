@@ -1,18 +1,20 @@
 import axios from 'axios';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Button from '../components/Button';
 import TransactionList from '../components/TransactionList';
 import TransactionModal from '../components/TransactionModal';
 import AuthGuard from '../guards/AuthGuard';
 import useAuth from '../hooks/useAuth';
+import Link from 'next/link';
 
 export default function Home() {
   const { user } = useAuth();
   const [balanceData, setBalanceData] = useState();
   const [isModalShowing, setIsModalShowing] = useState(false);
 
-  useEffect(() => {
+  const fetchBalance = useCallback(() => {
+    setBalanceData(null);
     axios
       .get(`${process.env.NEXT_PUBLIC_API_URL}/transactions/balance`, {
         headers: { Authorization: `Bearer ${user.token}` },
@@ -21,23 +23,23 @@ export default function Home() {
         setBalanceData(data);
       })
       .catch(() => {});
+  }, [user.token, setBalanceData]);
+
+  useEffect(() => {
+    fetchBalance();
   }, []);
 
-  const handleListChange = (type, updatedTransaction) => {
-    if (type === 'update') {
-      setBalanceData({
-        ...balanceData,
-        transactions: balanceData.transactions.map((transaction) =>
-          transaction.id === updatedTransaction.id ? { ...transaction, ...updatedTransaction } : transaction
-        ),
-      });
-    } else if (type === 'delete') {
-      setBalanceData({
-        ...balanceData,
-        transactions: balanceData.transactions.filter((transaction) => transaction.id !== updatedTransaction.id),
-      });
+  const handleListChange = () => {
+    fetchBalance();
+  };
+
+  const handleModalClose = (newTransaction) => {
+    setIsModalShowing(false);
+    if (newTransaction) {
+      fetchBalance();
     }
   };
+
   return (
     <AuthGuard>
       <>
@@ -51,51 +53,47 @@ export default function Home() {
           role="main"
           className="container mx-auto py-20 flex flex-wrap min-h-screen gap-x-20 gap-y-10 px-5 sm:px-0"
         >
-          {!balanceData ? (
-            <svg
-              className="animate-spin h-20 w-20 text-indigo-600"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-          ) : (
-            <>
-              <section className="flex flex-col w-full lg:w-auto">
-                <div className="mb-10">
-                  <h1 className="text-indigo-600 font-medium text-6xl mb-3">Balance actual</h1>
-                  <span className="text-5xl text-indigo-600 font-medium">${balanceData.balance}</span>
-                  <div className="mt-12 text-4xl">
-                    <p className="font-medium flex-1 text-indigo-600 flex items-center">
-                      Ingresos: <span className="ml-auto text-3xl">${balanceData.income}</span>
-                    </p>
-                    <p className="font-medium flex-1 text-indigo-600 flex mt-2 items-center">
-                      Egresos: <span className="ml-auto text-3xl">${balanceData.expense}</span>
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-auto flex justify-between gap-x-4">
-                  <Button className="flex-1" onClick={() => setIsModalShowing(true)}>
-                    Nuevo
-                  </Button>
-                  <Button className="flex-1">Ver lista completa</Button>
-                </div>
-              </section>
-              <section className="flex flex-col flex-1 max-w-full">
-                <h1 className="text-indigo-600 font-medium text-6xl mb-14"> Últimas operaciones</h1>
-                <div className="overflow-auto" style={{ flex: '1 1 1px', minHeight: '500px' }}>
-                  <TransactionList list={balanceData.transactions} onListChange={handleListChange} />
-                </div>
-              </section>
-            </>
-          )}
-          <TransactionModal show={isModalShowing} onClose={() => setIsModalShowing(false)} />
+          <section className="flex flex-col w-full lg:w-auto flex-1">
+            <div className="mb-10">
+              <h1 className="text-indigo-600 font-medium text-6xl mb-3">Balance actual de {user.name}</h1>
+              <span className="text-5xl text-indigo-600 font-medium">
+                {' '}
+                ${balanceData?.balance !== undefined ? balanceData?.balance : '-'}
+              </span>
+              <div className="mt-12 text-4xl">
+                <p className="font-medium flex-1 text-indigo-600 flex items-center">
+                  Ingresos:
+                  <span className="ml-auto text-3xl">
+                    ${balanceData?.income !== undefined ? balanceData?.income : '-'}
+                  </span>
+                </p>
+                <p className="font-medium flex-1 text-indigo-600 flex mt-2 items-center">
+                  Egresos:
+                  <span className="ml-auto text-3xl">
+                    ${balanceData?.expense !== undefined ? balanceData?.expense : '-'}
+                  </span>
+                </p>
+              </div>
+            </div>
+            <div className="mt-auto flex justify-between gap-x-4">
+              <Button className="flex-1" onClick={() => setIsModalShowing(true)} disabled={!balanceData}>
+                Nuevo
+              </Button>
+              <Link passHref href="/transactions">
+                <Button className="flex-1" disabled={!balanceData}>
+                  Ver lista completa
+                </Button>
+              </Link>
+            </div>
+          </section>
+          <section className="flex flex-col max-w-full" style={{ flex: '2' }}>
+            <h1 className="text-indigo-600 font-medium text-6xl mb-14"> Últimas operaciones</h1>
+            <div className="overflow-auto" style={{ flex: '1 1 1px', minHeight: '500px' }}>
+              <TransactionList list={balanceData?.transactions} onListChange={handleListChange} />
+            </div>
+          </section>
+
+          <TransactionModal show={isModalShowing} onClose={handleModalClose} />
         </main>
       </>
     </AuthGuard>
