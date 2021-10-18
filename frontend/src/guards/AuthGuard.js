@@ -11,5 +11,6 @@ export default function AuthGuard({ children }) {
       push({ pathname: '/login' });
     }
   }, [user, isReady, push]);
-  return <>{children}</>;
+
+  return <>{isReady && user ? children : null}</>;
 }
