@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Button from '../components/Button';
+import { FieldWrapper } from '../components/FieldWrapper';
 import TextInput from '../components/TextInput';
 import useAuth from '../hooks/useAuth';
 
@@ -52,48 +53,52 @@ export default function Register() {
             noValidate
           >
             <h1 className="text-center font-medium text-3xl mb-8 text-indigo-600">Registrarse</h1>
-            <TextInput
-              className="mb-6"
-              type="email"
-              label="Email"
-              id="email"
-              maxLength={100}
-              {...register('email', {
-                required: { value: true, message: 'Ingresa el Email' },
-                maxLength: 100,
-                pattern: {
-                  value: /\S+@\S+\.\S+/,
-                  message: 'Ingresa un email válido',
-                },
-              })}
-              errorMessage={errors.email?.message}
-            />
-            <TextInput
-              className="mb-6"
-              type="text"
-              label="Nombre"
-              id="name"
-              maxLength={30}
-              errorMessage={errors.name?.message}
-              {...register('name', {
-                required: { value: true, message: 'Ingresa el nombre' },
-                maxLength: 30,
-                minLength: { value: 3, message: 'El nombre debe tener como mínimo 3 caracteres' },
-              })}
-            />
-            <TextInput
+            <FieldWrapper className="mb-6" label="Email" errorMessage={errors.email?.message}>
+              <TextInput
+                type="email"
+                id="email"
+                maxLength={100}
+                {...register('email', {
+                  required: { value: true, message: 'Ingresa el Email' },
+                  maxLength: 100,
+                  pattern: {
+                    value: /\S+@\S+\.\S+/,
+                    message: 'Ingresa un email válido',
+                  },
+                })}
+              />
+            </FieldWrapper>
+
+            <FieldWrapper className="mb-6" label="Nombre" errorMessage={errors.name?.message}>
+              <TextInput
+                type="text"
+                id="name"
+                maxLength={30}
+                {...register('name', {
+                  required: { value: true, message: 'Ingresa el nombre' },
+                  maxLength: 30,
+                  minLength: { value: 3, message: 'El nombre debe tener como mínimo 3 caracteres' },
+                })}
+              />
+            </FieldWrapper>
+
+            <FieldWrapper
               className="mb-8"
-              type="password"
               label="Contraseña"
-              id="password"
-              maxLength={25}
+              htmlFor="password"
               errorMessage={errors.password?.message}
-              {...register('password', {
-                required: { value: true, message: 'Ingresa la contraseña' },
-                maxLength: 25,
-                minLength: { value: 4, message: 'La contraseña debe tener como mínimo 4 caracteres' },
-              })}
-            />
+            >
+              <TextInput
+                type="password"
+                id="password"
+                maxLength={25}
+                {...register('password', {
+                  required: { value: true, message: 'Ingresa la contraseña' },
+                  maxLength: 25,
+                  minLength: { value: 4, message: 'La contraseña debe tener como mínimo 4 caracteres' },
+                })}
+              />
+            </FieldWrapper>
 
             {errors.request && <p className="text-center font-medium text-red-500 my-2">{errors.request.message}</p>}
             <Button className="w-full mb-4" disabled={isSubmitting || !isValid}>

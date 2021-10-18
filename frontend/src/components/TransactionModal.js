@@ -4,6 +4,7 @@ import { Controller, useForm } from 'react-hook-form';
 import useAuth from '../hooks/useAuth';
 import Button from './Button';
 import CategoryEditor from './CategoryEditor';
+import { FieldWrapper } from './FieldWrapper';
 import TextInput from './TextInput';
 
 const api = process.env.NEXT_PUBLIC_API_URL;
@@ -69,53 +70,40 @@ export default function TransactionModal({ mode = 'creating', transaction, show,
         <h1 className="font-medium text-2xl text-indigo-600">{mode === 'creating' ? 'Nueva operación' : 'Editar'}</h1>
         <form className="py-5" onSubmit={handleSubmit(onSubmit)} noValidate>
           {mode === 'creating' ? (
-            <div className={`md:flex md:items-center`}>
-              <div className="md:w-1/3">
-                <label className="block text-gray-500 font-bold mb-1 md:mb-0" htmlFor="category-input">
-                  Tipo
-                </label>
-              </div>
-              <div className="md:w-2/3">
-                <input {...register('type')} type="radio" value="0" id="income" />
-                <label for="income"> Ingreso</label>
+            <FieldWrapper label="Tipo">
+              <input {...register('type')} type="radio" value="0" id="income" />
+              <label for="income"> Ingreso</label>
 
-                <input {...register('type')} type="radio" value="1" className="ml-2" id="expense" />
-                <label for="expense"> Egreso</label>
-              </div>
-            </div>
+              <input {...register('type')} type="radio" value="1" className="ml-2" id="expense" />
+              <label for="expense"> Egreso</label>
+            </FieldWrapper>
           ) : null}
 
-          <TextInput label="Concepto" {...register('desc', { required: true })} className="my-4" />
+          <FieldWrapper className="my-4" label="Concepto" htmlFor="desc">
+            <TextInput id="desc" {...register('desc', { required: true })} />
+          </FieldWrapper>
 
-          <TextInput
-            label="Monto"
-            type="number"
-            className="my-4"
-            min={1}
-            {...register('amount', { required: true, min: 1 })}
-          />
-          <TextInput label="Fecha" type="date" className="my-4" {...register('date', { required: true })} />
+          <FieldWrapper className="my-4" label="Monto" htmlFor="amount">
+            <TextInput id="amount" type="number" min={1} {...register('amount', { required: true, min: 1 })} />
+          </FieldWrapper>
 
-          <div className={`md:flex md:items-center`}>
-            <div className="md:w-1/3">
-              <label className="block text-gray-500 font-bold mb-1 md:mb-0" htmlFor="category-input">
-                Categorías
-              </label>
-            </div>
-            <div className="md:w-2/3">
-              <Controller
-                name="categories"
-                control={control}
-                render={({ field: { value, onChange } }) => (
-                  <CategoryEditor
-                    value={value}
-                    onAdd={(category) => onChange([...value, category])}
-                    onDelete={(category) => onChange(value.filter((_category) => _category !== category))}
-                  />
-                )}
-              />
-            </div>
-          </div>
+          <FieldWrapper className="my-4" label="Fecha" htmlFor="date">
+            <TextInput id="date" type="date" {...register('date', { required: true })} />
+          </FieldWrapper>
+
+          <FieldWrapper htmlFor="category-input" label="Categorías">
+            <Controller
+              name="categories"
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <CategoryEditor
+                  value={value}
+                  onAdd={(category) => onChange([...value, category])}
+                  onDelete={(category) => onChange(value.filter((_category) => _category !== category))}
+                />
+              )}
+            />
+          </FieldWrapper>
 
           <div className="flex justify-between mt-10 gap-x-10">
             <Button
