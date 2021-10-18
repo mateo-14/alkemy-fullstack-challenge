@@ -48,7 +48,7 @@ export default function TransactionList({ list, onListChange }) {
             <tr className="h-20 border-gray-300 border-b font-medium" key={transaction.id}>
               <td>{transaction.type === 0 ? 'Ingreso' : 'Egreso'}</td>
               <td className="text-indigo-600 px-2">${transaction.amount}</td>
-              <td className="px-2">{new Date(transaction.date).toLocaleString()}</td>
+              <td className="px-2">{new Date(transaction.date).toLocaleDateString()}</td>
               <td className="px-2">{transaction.desc}</td>
               <td className="px-2">
                 {transaction.categories.map((category) => (
