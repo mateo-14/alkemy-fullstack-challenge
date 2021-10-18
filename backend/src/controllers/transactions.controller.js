@@ -5,11 +5,13 @@ const sequelize = require('../db');
 
 module.exports = {
   get: async (req, res) => {
-    const { type, category, offset } = req.query;
+    const { type, categories, offset } = req.query;
+    console.log(categories);
     try {
       const user = await User.findOne({ where: { id: req.userID } });
       if (user) {
         const where = {};
+
         if (type == 0 || type == 1) {
           where.type = type;
         }
@@ -25,16 +27,21 @@ module.exports = {
           },
         ];
 
-        if (category) include[0].where = { name: category };
+        if (categories && categories instanceof Array) include[0].where = { name: categories };
 
         const transactions = await user.getTransactions({
           where,
           include,
           order: [['date', 'DESC']],
-          limit: 10,
+          limit: 3,
           offset: offset || 0,
         });
-        res.json(transactions);
+        res.json(
+          transactions.map((transaction) => ({
+            ...transaction.toJSON(),
+            categories: transaction.categories.map((category) => category.name),
+          }))
+        );
       } else {
         res.sendStatus(404);
       }
@@ -73,7 +80,7 @@ module.exports = {
         await transaction.addCategories(dbCategories);
         return res.json({ ...transaction.toJSON(), categories: dbCategories.map((category) => category.name) });
       }
-      res.json(transaction);
+      res.json({ ...transaction.toJSON(), categories: [] });
     } catch (err) {
       console.error(err);
       res.status(500).json({ errors: { error: err.message } });
