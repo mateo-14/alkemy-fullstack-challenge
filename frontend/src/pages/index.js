@@ -19,10 +19,25 @@ export default function Home() {
       })
       .then(({ data }) => {
         setBalanceData(data);
-        console.log(data);
-      });
+      })
+      .catch(() => {});
   }, []);
 
+  const handleListChange = (type, updatedTransaction) => {
+    if (type === 'update') {
+      setBalanceData({
+        ...balanceData,
+        transactions: balanceData.transactions.map((transaction) =>
+          transaction.id === updatedTransaction.id ? { ...transaction, ...updatedTransaction } : transaction
+        ),
+      });
+    } else if (type === 'delete') {
+      setBalanceData({
+        ...balanceData,
+        transactions: balanceData.transactions.filter((transaction) => transaction.id !== updatedTransaction.id),
+      });
+    }
+  };
   return (
     <AuthGuard>
       <>
@@ -75,7 +90,7 @@ export default function Home() {
               <section className="flex flex-col flex-1 max-w-full">
                 <h1 className="text-indigo-600 font-medium text-6xl mb-14"> Últimas operaciones</h1>
                 <div className="overflow-auto" style={{ flex: '1 1 1px', minHeight: '500px' }}>
-                  <TransactionList list={balanceData.transactions} />
+                  <TransactionList list={balanceData.transactions} onListChange={handleListChange} />
                 </div>
               </section>
             </>
