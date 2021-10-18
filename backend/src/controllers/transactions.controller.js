@@ -49,8 +49,8 @@ module.exports = {
 
     const validatorErrors = {};
     if (!desc) validatorErrors.desc = 'Description is required';
-    if (!type) validatorErrors.type = 'Type is required';
-    if (!amount) validatorErrors.amount = 'Date is required';
+    if (type == undefined) validatorErrors.type = 'Type is required';
+    if (!amount) validatorErrors.amount = 'Amount is required';
 
     if (Object.keys(validatorErrors).length > 0) return res.status(400).json({ errors: validatorErrors });
     const newTransaction = {
@@ -102,6 +102,7 @@ module.exports = {
       await transaction.removeCategories(categoriesToRemove);
 
       const categoriesToAdd = categories.filter((name) => !dbCategories.some((category) => category.name === name));
+      //sequelize.transaction() sqlite :memory: not work without this
       const newCategories = await sequelize.transaction((t) =>
         Promise.all(categoriesToAdd.map((name) => Category.findOrCreate({ where: { name }, transaction: t })))
       );
@@ -154,8 +155,12 @@ module.exports = {
         ],
       });
 
-      const balance = transactions.reduce(
-        (acc, transaction) => acc + transaction.amount * (transaction.type === 0 ? 1 : -1),
+      const expense = transactions.reduce(
+        (acc, transaction) => acc + (transaction.type === 1 ? transaction.amount : 0),
+        0
+      );
+      const income = transactions.reduce(
+        (acc, transaction) => acc + (transaction.type === 0 ? transaction.amount : 0),
         0
       );
 
@@ -167,7 +172,9 @@ module.exports = {
         ),
       ];
       res.json({
-        balance,
+        balance: income - expense,
+        income,
+        expense,
         transactions: transactions.slice(0, 10).map((transaction) => ({
           ...transaction.toJSON(),
           categories: transaction.categories.map((category) => category.name),
