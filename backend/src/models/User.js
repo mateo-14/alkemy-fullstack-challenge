@@ -28,7 +28,7 @@ User.init(
       allowNull: false,
     },
   },
-  { sequelize }
+  { sequelize },
 );
 
 function hashPassword(user) {

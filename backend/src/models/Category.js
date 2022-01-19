@@ -7,10 +7,13 @@ Category.init(
   {
     name: { type: DataTypes.STRING, unique: true, primaryKey: true },
   },
-  { sequelize, name: { singular: 'category', plural: 'categories' } }
+  { sequelize, name: { singular: 'category', plural: 'categories' } },
 );
 
 module.exports = Category;
 
 const Transaction = require('./Transaction');
-Category.belongsToMany(Transaction, { through: 'transaction_category', foreignKey: 'categoryName' });
+Category.belongsToMany(Transaction, {
+  through: 'transaction_category',
+  foreignKey: 'categoryName',
+});

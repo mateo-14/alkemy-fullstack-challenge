@@ -15,10 +15,13 @@ Transaction.init(
     amount: DataTypes.NUMBER,
     type: DataTypes.SMALLINT, //0 = income, 1 = expense
   },
-  { sequelize, name: { singular: 'transaction', plural: 'transactions' } }
+  { sequelize, name: { singular: 'transaction', plural: 'transactions' } },
 );
 
 module.exports = Transaction;
 
 const Category = require('./Category');
-Transaction.belongsToMany(Category, { through: 'transaction_category', foreignKey: 'transactionID' });
+Transaction.belongsToMany(Category, {
+  through: 'transaction_category',
+  foreignKey: 'transactionID',
+});

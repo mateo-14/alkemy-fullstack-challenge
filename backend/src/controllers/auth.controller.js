@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
+
 async function generateToken(userID) {
   return new Promise((resolve, reject) => {
     jwt.sign({ userID }, process.env.TOKEN_SECRET, { expiresIn: '30d' }, (err, token) => {
@@ -17,7 +18,8 @@ module.exports = {
     const validatorErrors = {};
     if (!email) validatorErrors.email = 'Email is required';
     if (!password) validatorErrors.password = 'Password is required';
-    if (Object.keys(validatorErrors).length > 0) return res.status(400).json({ errors: validatorErrors });
+    if (Object.keys(validatorErrors).length > 0)
+      return res.status(400).json({ errors: validatorErrors });
 
     try {
       const [user, created] = await User.findOrCreate({
