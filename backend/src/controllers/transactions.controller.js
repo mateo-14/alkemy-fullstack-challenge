@@ -1,7 +1,5 @@
-const Category = require('../models/Category');
-const Transaction = require('../models/Transaction');
-const User = require('../models/User');
-const sequelize = require('../db');
+const { User, Transaction, Category, sequelize } = require('../../models');
+
 
 module.exports = {
   get: async (req, res) => {
@@ -32,7 +30,7 @@ module.exports = {
           where,
           include,
           order: [['date', 'DESC']],
-          limit: 3,
+          limit: 6,
           offset: offset || 0,
         });
         res.json(

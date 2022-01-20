@@ -1,6 +1,5 @@
-const User = require('../models/User');
+const { User } = require('../../models');
 const jwt = require('jsonwebtoken');
-
 
 async function generateToken(userID) {
   return new Promise((resolve, reject) => {
