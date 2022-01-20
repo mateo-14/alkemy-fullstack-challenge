@@ -1,8 +1,9 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 export default function CategoryEditor({ value, onAdd, onDelete }) {
   const inputRef = useRef();
-
+  const [isInputFocused, setIsInputFocused] = useState(false);
+  
   const handleClick = (e) => {
     if (e.currentTarget === e.target) {
       inputRef.current.focus();
@@ -19,9 +20,13 @@ export default function CategoryEditor({ value, onAdd, onDelete }) {
       }
     }
   };
+
+  const handleInputFocus = () => setIsInputFocused(true)
+  const handleInputBlur = () => setIsInputFocused(false)
+  
   return (
     <div
-      className="py-2 px-3 rounded-md border-2 border-gray-300 focus:border-indigo-50 cursor-text"
+      className={`py-2 px-3 rounded-md border-2 border-gray-300 ${isInputFocused ? 'border-indigo-500' : ''}`}
       onClick={handleClick}
     >
       {value?.map((category) => (
@@ -50,6 +55,8 @@ export default function CategoryEditor({ value, onAdd, onDelete }) {
       <input
         id="category-input"
         className="outline-none my-1 w-28"
+        onFocus={handleInputFocus}
+        onBlur={handleInputBlur}
         ref={inputRef}
         onKeyDown={handleKeyDown}
         defaultValue=""
