@@ -1,8 +1,5 @@
 const { generateToken } = require('../src/controllers/auth.controller');
-const sequelize = require('../src/db');
-const Category = require('../src/models/Category');
-const Transaction = require('../src/models/Transaction');
-const User = require('../src/models/User');
+const { User, Transaction, Category, sequelize } = require('../models');
 const { api } = require('./index');
 
 const users = [
@@ -24,7 +21,11 @@ let token;
 let db = {};
 
 beforeAll(async () => {
-  await sequelize.sync();
+  try {
+    await sequelize.sync();
+  } catch(err) {
+    console.error(err);
+  }
   db.users = await User.bulkCreate(users);
   db.transactions = await Transaction.bulkCreate(transactions);
   db.categories = await Category.bulkCreate(categories);
@@ -52,9 +53,9 @@ describe('GET /transactions', () => {
             transaction.desc === dbTransaction.desc &&
             transaction.amount === dbTransaction.amount &&
             transaction.type === dbTransaction.type &&
-            new Date(transaction.date).getTime() === dbTransaction.date.getTime()
-        )
-      )
+            new Date(transaction.date).getTime() === dbTransaction.date.getTime(),
+        ),
+      ),
     ).toBeTruthy();
   };
 
@@ -218,7 +219,10 @@ describe('DELETE /transactions/:id', () => {
   });
 
   it('responds 401 ', async () => {
-    await api.delete(`/transactions/${db.transactions[0].id}`).set('Authorization', 'Bearer randomtoken').expect(401);
+    await api
+      .delete(`/transactions/${db.transactions[0].id}`)
+      .set('Authorization', 'Bearer randomtoken')
+      .expect(401);
   });
 
   it("responds 401 (another user's transaction)", async () => {
@@ -238,13 +242,16 @@ describe('GET /transactions/balance', () => {
     const userTransactions = await db.users[0].getTransactions();
     const balance = userTransactions.reduce(
       (acc, transaction) => acc + transaction.amount * (transaction.type === 0 ? 1 : -1),
-      0
+      0,
     );
     expect(res.body.transactions).toHaveLength(userTransactions.length);
     expect(res.body.balance).toBe(balance);
   });
 
   it('responds 401 ', async () => {
-    await api.delete('/transactions/balance').set('Authorization', 'Bearer randomtoken').expect(401);
+    await api
+      .delete('/transactions/balance')
+      .set('Authorization', 'Bearer randomtoken')
+      .expect(401);
   });
 });

@@ -1,14 +1,18 @@
 const { api } = require('./index');
-const User = require('../src/models/User');
-const sequelize = require('../src/db');
+const { User, sequelize } = require('../models');
 const { generateToken } = require('../src/controllers/auth.controller');
 
 const testUser = { name: 'Name', email: 'testRoutes@example.com', password: '123456' };
 
 beforeAll(async () => {
-  await sequelize.sync();
+  try {
+    await sequelize.sync();
+  } catch(err) {
+    console.error(err);
+  }
   testUser.id = (await User.create(testUser)).id;
 });
+
 
 describe('POST /auth/register', () => {
   it('responds (200) with user', async () => {
