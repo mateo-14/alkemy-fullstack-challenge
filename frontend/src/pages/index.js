@@ -27,13 +27,13 @@ export default function Home() {
   return (
     <AuthGuard>
       <Layout title="Inicio">
-        <div className="container mx-auto py-20 flex flex-wrap gap-x-20 gap-y-10 px-5 sm:px-0">
-          <section className="flex flex-col w-full lg:w-auto flex-1">
+        <div className="container mx-auto py-20 flex flex-wrap gap-16 px-5">
+          <section className="flex flex-col w-full lg:flex-1 lg:w-auto">
             <div className="mb-10">
-              <h1 className="text-indigo-600 font-medium text-6xl mb-3">Balance actual de {user?.name}</h1>
-              <span className="text-5xl text-indigo-600 font-medium">
+              <h1 className="text-indigo-600 font-medium text-5xl mb-3">Balance actual de {user?.name}</h1>
+              <p className="text-4xl text-indigo-600 font-medium">
                 ${balanceData?.balance !== undefined ? balanceData?.balance : '-'}
-              </span>
+              </p>
               <div className="mt-12 text-4xl">
                 <p className="font-medium flex-1 text-indigo-600 flex items-center">
                   Ingresos:
@@ -60,9 +60,9 @@ export default function Home() {
               </Link>
             </div>
           </section>
-          <section className="flex flex-col max-w-full" style={{ flex: '2' }}>
-            <h1 className="text-indigo-600 font-medium text-6xl mb-14"> Últimos gastos</h1>
-            <div className="overflow-auto" style={{ flex: '1 1 1px', minHeight: '500px' }}>
+          <section className="flex flex-col w-full lg:flex-[2] lg:w-auto">
+            <h1 className="text-indigo-600 font-medium text-5xl mb-14"> Últimos gastos</h1>
+            <div className="overflow-auto flex-[1_1_1px] min-h-[500px]">
               <TransactionList list={balanceData?.transactions} onListChange={handleListChange} />
             </div>
           </section>

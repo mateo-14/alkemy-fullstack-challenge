@@ -20,7 +20,9 @@ export default function Transactions() {
 
   useEffect(() => {
     if (balanceData) {
-      const updated = categories.filter((category) => balanceData.categories.includes(category.value));
+      const updated = categories.filter((category) =>
+        balanceData.categories.includes(category.value),
+      );
       for (const category of balanceData.categories) {
         if (!categories.some(({ value }) => value === category)) {
           updated.push({ value: category, checked: false });
@@ -63,11 +65,15 @@ export default function Transactions() {
     if (type === 'update') {
       setTransactions(
         transactions.map((transaction) =>
-          transaction.id === updatedTransaction.id ? { ...transaction, ...updatedTransaction } : transaction
-        )
+          transaction.id === updatedTransaction.id
+            ? { ...transaction, ...updatedTransaction }
+            : transaction,
+        ),
       );
     } else if (type === 'delete') {
-      setTransactions(transactions.filter((transaction) => transaction.id !== updatedTransaction.id));
+      setTransactions(
+        transactions.filter((transaction) => transaction.id !== updatedTransaction.id),
+      );
     }
   };
 
@@ -95,10 +101,10 @@ export default function Transactions() {
                 uncheckAllText="Deseleccionar todas"
               />
             </FieldWrapper>
-            <div className="overflow-auto" style={{ flex: '1 1 1px', minHeight: '500px' }}>
+            <div className="overflow-auto flex-[1_1_1px] min-h-[500px]">
               <TransactionList list={transactions} onListChange={handleListChange} />
             </div>
-            <div className="mt-auto flex justify-between gap-x-6">
+            <div className="mt-4 flex justify-between gap-x-6">
               <Button className="flex-1" onClick={() => setIsModalShowing(true)}>
                 Nueva
               </Button>
