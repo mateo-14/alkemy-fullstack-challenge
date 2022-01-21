@@ -9,7 +9,14 @@
     "logging": false
   },
   "production": {
-    "use_env_variable": "DATABASE_URI",
-    "dialect": "postgres"
+    "use_env_variable": "DATABASE_URL",
+    "dialect": "postgres",
+    "ssl": true,
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
   }
 }
