@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       desc: DataTypes.STRING,
       date: DataTypes.DATE,
-      amount: DataTypes.NUMBER,
+      amount: DataTypes.FLOAT,
       type: DataTypes.SMALLINT,
     },
     {

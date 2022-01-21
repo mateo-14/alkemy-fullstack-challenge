@@ -15,7 +15,7 @@ module.exports = {
         type: Sequelize.DATE
       },
       amount: {
-        type: Sequelize.NUMBER
+        type: Sequelize.FLOAT
       },
       type: {
         type: Sequelize.SMALLINT
