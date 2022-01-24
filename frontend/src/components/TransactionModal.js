@@ -45,7 +45,7 @@ export default function TransactionModal({ mode = 'creating', transaction, show,
     const headers = { Authorization: `Bearer ${token}` };
     try {
       if (mode === 'editing' && transaction) {
-        await axios.put(
+        await axios.patch(
           `${api}/transactions/${transaction.id}`,
           {
             ...transaction,

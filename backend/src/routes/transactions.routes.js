@@ -5,7 +5,7 @@ const authMiddleware = require('../middlewares/auth.middleware');
 
 router.get('/', authMiddleware, transactionsController.get);
 router.post('/', authMiddleware, transactionsController.create);
-router.put('/:id', authMiddleware, transactionsController.update);
+router.patch('/:id', authMiddleware, transactionsController.update);
 router.delete('/:id', authMiddleware, transactionsController.delete);
 router.get('/balance', authMiddleware, transactionsController.getBalance);
 

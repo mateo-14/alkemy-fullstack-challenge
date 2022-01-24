@@ -1,6 +1,5 @@
 const { User, Transaction, Category, sequelize } = require('../../models');
 
-
 module.exports = {
   get: async (req, res) => {
     const { type, categories, offset } = req.query;
@@ -37,7 +36,7 @@ module.exports = {
           transactions.map((transaction) => ({
             ...transaction.toJSON(),
             categories: transaction.categories.map((category) => category.name),
-          })),
+          }))
         );
       } else {
         res.sendStatus(404);
@@ -74,7 +73,7 @@ module.exports = {
 
       if (categories instanceof Array && categories.length > 0) {
         let dbCategories = await Promise.all(
-          categories.map((name) => Category.findOrCreate({ where: { name } })),
+          categories.map((name) => Category.findOrCreate({ where: { name } }))
         );
         dbCategories = dbCategories.map(([category]) => category);
         await transaction.addCategories(dbCategories);
@@ -104,23 +103,27 @@ module.exports = {
       const isOwner = await user.hasTransaction(transaction);
       if (!isOwner) return res.sendStatus(401);
 
-      transaction = await transaction.update({ desc, date, amount });
+      transaction = await transaction.update({
+        desc: desc || transaction.desc,
+        date: date || transaction.date,
+        amount: amount || transaction.amount,
+      });
 
       //Update categories
       const dbCategories = await transaction.getCategories();
       const categoriesToRemove = dbCategories.filter(
-        (category) => !categories.includes(category.name),
+        (category) => !categories.includes(category.name)
       );
       await transaction.removeCategories(categoriesToRemove);
 
       const categoriesToAdd = categories.filter(
-        (name) => !dbCategories.some((category) => category.name === name),
+        (name) => !dbCategories.some((category) => category.name === name)
       );
-      //sequelize.transaction() sqlite :memory: not work without this
+
       const newCategories = await sequelize.transaction((t) =>
         Promise.all(
-          categoriesToAdd.map((name) => Category.findOrCreate({ where: { name }, transaction: t })),
-        ),
+          categoriesToAdd.map((name) => Category.findOrCreate({ where: { name }, transaction: t }))
+        )
       );
 
       await transaction.addCategories(newCategories.map(([category]) => category));
@@ -176,18 +179,18 @@ module.exports = {
 
       const expense = transactions.reduce(
         (acc, transaction) => acc + (transaction.type === 1 ? transaction.amount : 0),
-        0,
+        0
       );
       const income = transactions.reduce(
         (acc, transaction) => acc + (transaction.type === 0 ? transaction.amount : 0),
-        0,
+        0
       );
 
       const categories = [
         ...new Set(
           transactions
             .map((transaction) => transaction.categories.map((category) => category.name))
-            .reduce((acc, categories) => acc.concat(categories), []),
+            .reduce((acc, categories) => acc.concat(categories), [])
         ),
       ];
       res.json({

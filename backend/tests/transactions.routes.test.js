@@ -172,7 +172,7 @@ describe('PUT /transactions/:id', () => {
       categories: ['new category', 'new category 1'],
     };
     const res = await api
-      .put(`/transactions/${transaction.id}`)
+      .patch(`/transactions/${transaction.id}`)
       .set('Authorization', `Bearer ${token}`)
       .send(newData)
       .expect(200)
@@ -192,16 +192,16 @@ describe('PUT /transactions/:id', () => {
   });
 
   it('responds 404', async () => {
-    await api.put(`/transactions/randomid`).set('Authorization', `Bearer ${token}`).expect(404);
+    await api.patch(`/transactions/randomid`).set('Authorization', `Bearer ${token}`).expect(404);
   });
 
   it('responds 401', async () => {
-    await api.put(`/transactions/${db.transactions[0].id}`).expect(401);
+    await api.patch(`/transactions/${db.transactions[0].id}`).expect(401);
   });
 
   it("responds 401 (another user's transaction)", async () => {
     const id = db.transactions[db.transactions.length - 1].id;
-    await api.put(`/transactions/${id}`).set('Authorization', `Bearer ${token}`).expect(401);
+    await api.patch(`/transactions/${id}`).set('Authorization', `Bearer ${token}`).expect(401);
   });
 });
 
