@@ -1,5 +1,5 @@
 import React from 'react';
-export default React.forwardRef(
+const TextInput = React.forwardRef(
   (
     { id, name, type, value, defaultValue, onChange, placeholder, onBlur, required, maxLength, minLength, max, min },
     ref
@@ -23,3 +23,5 @@ export default React.forwardRef(
     />
   )
 );
+TextInput.displayName = 'TextInput';
+export default TextInput;
